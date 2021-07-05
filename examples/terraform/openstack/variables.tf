@@ -14,6 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+######### GLOBAL ##########
+############################
 variable "cluster_name" {
   description = "Name of the cluster"
   type        = string
@@ -38,89 +40,25 @@ variable "worker_os" {
 variable "ssh_public_key_file" {
   description = "SSH public key file"
   default     = "~/.ssh/id_rsa.pub"
-  type        = string
-}
-
-variable "ssh_port" {
-  description = "SSH port to be used to provision instances"
-  default     = 22
-  type        = number
-}
-
-variable "ssh_username" {
-  description = "SSH user, used only in output"
-  default     = "ubuntu"
-  type        = string
 }
 
 variable "ssh_private_key_file" {
   description = "SSH private key file used to access instances"
   default     = ""
-  type        = string
 }
 
 variable "ssh_agent_socket" {
   description = "SSH Agent socket, default to grab from $SSH_AUTH_SOCK"
   default     = "env:SSH_AUTH_SOCK"
-  type        = string
-}
-
-variable "bastion_port" {
-  description = "Bastion SSH port"
-  default     = 22
-  type        = number
-}
-
-variable "bastion_user" {
-  description = "Bastion SSH username"
-  default     = "ubuntu"
-  type        = string
-}
-
-# Provider specific settings
-
-variable "control_plane_flavor" {
-  default     = "m1.small"
-  description = "OpenStack instance flavor for the control plane nodes"
-  type        = string
-}
-
-variable "worker_flavor" {
-  default     = "m1.small"
-  description = "OpenStack instance flavor for the worker nodes"
-  type        = string
-}
-
-variable "lb_flavor" {
-  default     = "m1.tiny"
-  description = "OpenStack instance flavor for the LoadBalancer node"
-  type        = string
-}
-
-variable "image" {
-  default     = ""
-  description = "image name to use"
-  type        = string
-}
-
-variable "image_properties_query" {
-  default = {
-    os_distro  = "ubuntu"
-    os_version = "18.04"
-  }
-  description = "in absense of var.image, this will be used to query API for the image"
-  type        = map(any)
 }
 
 variable "subnet_cidr" {
   default     = "192.168.1.0/24"
   description = "OpenStack subnet cidr"
-  type        = string
 }
 
 variable "external_network_name" {
   description = "OpenStack external network name"
-  type        = string
 }
 
 variable "subnet_dns_servers" {
@@ -128,3 +66,69 @@ variable "subnet_dns_servers" {
   default = ["8.8.8.8", "8.8.4.4"]
 }
 
+variable "ipv6" {
+  type = object({
+    enabled    = bool
+    subnetpool = string
+  })
+  description = "Enable IPv6 subnet."
+}
+
+##### CONTROL PLANE ########
+############################
+variable "control_plane" {
+  type = object({
+    flavor = string
+    image  = string
+    user   = string
+    port   = number
+  })
+  description = "Control plane configuration."
+}
+
+######### BASTION ##########
+############################
+variable "bastion" {
+  type = object({
+    user   = string
+    image  = string
+    flavor = string
+    port   = number
+  })
+  description = "Information about bastion host (only if LBaaS is enabled)"
+}
+
+###### LOADBALANCER ########
+############################
+variable "lb" {
+  type = object({
+    useLBaaS = bool
+    flavor   = string
+    image    = string
+    user     = string
+    port     = number
+  })
+}
+
+######## WORKERS ###########
+############################
+variable "worker" {
+  # valid choices are:
+  # worker.os:
+  #   * flatcar
+  #   * ubuntu
+  #   * centos
+  type = object({
+    os = string
+    image = string
+    flavor = string
+    replicas = number
+  })
+  description = "Settings for the initial worker nodes deployed with a MachineDeployment. (0 by default)"
+  default = {
+    os       = "ubuntu"
+    image    = "Ubuntu Bionic 18.04"
+    flavor   = "m1.large"
+    replicas = 0
+  }
+}

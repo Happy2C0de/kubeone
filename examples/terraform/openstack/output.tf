@@ -23,6 +23,10 @@ output "kubeone_api" {
   }
 }
 
+output "ssh_commands" {
+  value = var.lb.useLBaaS ? formatlist("ssh -J ${var.bastion.user}@${openstack_networking_floatingip_v2.bastion[0].address}:${var.bastion.port} ${var.control_plane.user}@%s -p ${var.control_plane.port}", openstack_compute_instance_v2.control_plane.*.access_ip_v4) : formatlist("ssh -J ${var.lb.user}@${openstack_networking_floatingip_v2.lb.address}:${var.lb.port} ${var.control_plane.user}@%s -p ${var.control_plane.port}", openstack_compute_instance_v2.control_plane.*.access_ip_v4)
+}
+
 output "kubeone_hosts" {
   description = "Control plane endpoints to SSH to"
 
@@ -33,12 +37,12 @@ output "kubeone_hosts" {
       private_address      = openstack_compute_instance_v2.control_plane.*.access_ip_v4
       hostnames            = openstack_compute_instance_v2.control_plane.*.name
       ssh_agent_socket     = var.ssh_agent_socket
-      ssh_port             = var.ssh_port
+      ssh_port             = var.control_plane.port
       ssh_private_key_file = var.ssh_private_key_file
-      ssh_user             = var.ssh_username
-      bastion              = openstack_networking_floatingip_v2.lb.address
-      bastion_port         = var.bastion_port
-      bastion_user         = var.bastion_user
+      ssh_user             = var.control_plane.user
+      bastion              = var.lb.useLBaaS ? openstack_networking_floatingip_v2.bastion[0].address : openstack_networking_floatingip_v2.lb.address
+      bastion_port         = var.lb.useLBaaS ? var.bastion.port : var.lb.port
+      bastion_user         = var.lb.useLBaaS ? var.bastion.user : var.lb.user
     }
   }
 }
@@ -50,10 +54,10 @@ output "kubeone_workers" {
     # following outputs will be parsed by kubeone and automatically merged into
     # corresponding (by name) worker definition
     "${var.cluster_name}-pool1" = {
-      replicas = 1
+      replicas = var.worker.replicas
       providerSpec = {
         sshPublicKeys   = [file(var.ssh_public_key_file)]
-        operatingSystem = var.worker_os
+        operatingSystem = var.worker.os
         operatingSystemSpec = {
           distUpgradeOnBoot = false
         }
@@ -61,8 +65,8 @@ output "kubeone_workers" {
           # provider specific fields:
           # see example under `cloudProviderSpec` section at:
           # https://github.com/kubermatic/machine-controller/blob/master/examples/openstack-machinedeployment.yaml
-          image          = data.openstack_images_image_v2.image.name
-          flavor         = var.worker_flavor
+          image          = data.openstack_images_image_v2.worker_image.name
+          flavor         = var.worker.flavor
           securityGroups = [openstack_networking_secgroup_v2.securitygroup.name]
           network        = openstack_networking_network_v2.network.name
           subnet         = openstack_networking_subnet_v2.subnet.name
@@ -72,7 +76,8 @@ output "kubeone_workers" {
           # be derived from the flavor
           # rootDiskSizeGB = 50
           # Optional: limit how many volumes can be attached to a node
-          # nodeVolumeAttachLimit = 25
+          nodeVolumeAttachLimit = 25
+          instanceReadyCheckTimeout = "2m"
           tags = {
             "${var.cluster_name}-workers" = "pool1"
           }
@@ -81,4 +86,3 @@ output "kubeone_workers" {
     }
   }
 }
-

@@ -38,3 +38,10 @@ See the [Terraform loadbalancers in examples document][docs-tf-loadbalancer].
 | kubeone\_api | kube-apiserver LB endpoint |
 | kubeone\_hosts | Control plane endpoints to SSH to |
 | kubeone\_workers | Workers definitions, that will be transformed into MachineDeployment object |
+
+## Usage 
+```
+terraform init
+terraform plan -var-file ./example.tfvars -out .terraform/apply.plan
+terraform apply .terraform/apply.plan
+```
