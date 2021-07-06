@@ -55,6 +55,15 @@ resource "openstack_networking_secgroup_rule_v2" "secgroup_allow_internal_ipv4" 
   security_group_id = openstack_networking_secgroup_v2.securitygroup.id
 }
 
+resource "openstack_networking_secgroup_rule_v2" "secgroup_allow_internal_ipv6" {
+  count             = var.ipv6.enabled ? 1 : 0
+  description       = "Allow security group internal IPv6 traffic"
+  direction         = "ingress"
+  ethertype         = "IPv6"
+  remote_group_id   = openstack_networking_secgroup_v2.securitygroup.id
+  security_group_id = openstack_networking_secgroup_v2.securitygroup.id
+}
+
 resource "openstack_networking_secgroup_rule_v2" "secgroup_ssh" {
   description       = "Allow SSH"
   direction         = "ingress"
