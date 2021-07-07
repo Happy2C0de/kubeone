@@ -253,13 +253,17 @@ func ValidateClusterNetworkConfig(c kubeone.ClusterNetworkConfig, fldPath *field
 	allErrs := field.ErrorList{}
 
 	if len(c.PodSubnet) > 0 {
-		if _, _, err := net.ParseCIDR(c.PodSubnet); err != nil {
-			allErrs = append(allErrs, field.Invalid(fldPath.Child("podSubnet"), c.PodSubnet, ".clusterNetwork.podSubnet must be a valid CIDR string"))
+		for _, subnet := range strings.Split(c.PodSubnet, ",") {
+			if _, _, err := net.ParseCIDR(subnet); err != nil {
+				allErrs = append(allErrs, field.Invalid(fldPath.Child("podSubnet"), subnet, ".clusterNetwork.podSubnet must be a valid CIDR string"))
+			}
 		}
 	}
 	if len(c.ServiceSubnet) > 0 {
-		if _, _, err := net.ParseCIDR(c.ServiceSubnet); err != nil {
-			allErrs = append(allErrs, field.Invalid(fldPath.Child("serviceSubnet"), c.ServiceSubnet, ".clusterNetwork.serviceSubnet must be a valid CIDR string"))
+		for _, subnet := range strings.Split(c.ServiceSubnet, ",") {
+			if _, _, err := net.ParseCIDR(subnet); err != nil {
+				allErrs = append(allErrs, field.Invalid(fldPath.Child("serviceSubnet"), subnet, ".clusterNetwork.serviceSubnet must be a valid CIDR string"))
+			}
 		}
 	}
 

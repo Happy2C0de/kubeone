@@ -426,6 +426,19 @@ func TestClusterNetworkRoundTripConversion(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "cluster network with cni and without network id",
+			versionedClusterNetwork: &ClusterNetworkConfig{
+				PodSubnet:         "10.0.0.0/16,2001:db8::/32",
+				ServiceSubnet:     "192.168.1.0/24,2001:db8::/32",
+				ServiceDomainName: "cluster.local",
+			},
+			expectedInternalClusterNetwork: &kubeoneapi.ClusterNetworkConfig{
+				PodSubnet:         "10.0.0.0/16,2001:db8::/32",
+				ServiceSubnet:     "192.168.1.0/24,2001:db8::/32",
+				ServiceDomainName: "cluster.local",
+			},
+		},
 	}
 	for _, tc := range tests {
 		tc := tc

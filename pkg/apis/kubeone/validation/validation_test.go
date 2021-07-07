@@ -912,6 +912,30 @@ func TestValidateClusterNetworkConfig(t *testing.T) {
 			},
 			expectedError: true,
 		},
+		{
+			name: "valid ipv6 subnets",
+			clusterNetworkConfig: kubeone.ClusterNetworkConfig{
+				PodSubnet:     "192.168.1.0/24,2001:db8::/64",
+				ServiceSubnet: "192.168.0.0/24,2001:db8::/64",
+			},
+			expectedError: false,
+		},
+		{
+			name: "invalid ipv6 pod subnet",
+			clusterNetworkConfig: kubeone.ClusterNetworkConfig{
+				PodSubnet:     "192.168.1.0/24,2001:db8::",
+				ServiceSubnet: "192.168.0.0/24,2001:db8::/64",
+			},
+			expectedError: true,
+		},
+		{
+			name: "invalid ipv6 service subnet",
+			clusterNetworkConfig: kubeone.ClusterNetworkConfig{
+				PodSubnet:     "192.168.1.0/24,2001:db8::/64",
+				ServiceSubnet: "192.168.0.0/24,2001:db8::",
+			},
+			expectedError: true,
+		},
 	}
 	for _, tc := range tests {
 		tc := tc
