@@ -10,15 +10,8 @@ external_network_name = "public"
 ipv6 = {
   enabled    = false
   subnetpool = "IPV6_POOL"
-}
-
-# Bastion
-# Note: only applied if useLBaaS=true
-bastion = {
-  user   = "ubuntu"
-  image  = "Ubuntu Bionic 18.04"
-  flavor = "m1.small"
-  port   = 22
+  prefix_length = 112
+  dns_nameservers = ["2001:4860:4860::8888"]
 }
 
 # LoadBalancer Node
@@ -30,12 +23,23 @@ lb = {
   port     = 22
 }
 
+# Bastion
+# Note: only applied if useLBaaS=true
+bastion = {
+  user   = "ubuntu"
+  image  = "Ubuntu Bionic 18.04"
+  flavor = "m1.small"
+  port   = 22
+}
+
 # Control Plane
 control_plane = {
-  image  = "Ubuntu Bionic 18.04"
-  flavor = "m1.medium"
-  user   = "ubuntu"
-  port   = 22
+  image       = "Ubuntu Bionic 18.04"
+  flavor      = "m1.large"
+  user        = "ubuntu"
+  port        = 22
+  volume_size = 50
+  volume_type = "VOL_TYPE"
 }
 
 # Workers

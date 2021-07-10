@@ -40,14 +40,27 @@ resource "openstack_compute_keypair_v2" "deployer" {
 #   policies = ["anti-affinity"]
 # }
 
+resource "openstack_blockstorage_volume_v3" "control_plane" {
+  count = 3
+  name        = "cp-root-${count.index}"
+  size        = var.control_plane.volume_size
+  image_id    = data.openstack_images_image_v2.image.name
+  volume_type =  var.control_plane.volume_type
+}
+
 resource "openstack_compute_instance_v2" "control_plane" {
   count = 3
   name  = "${var.cluster_name}-cp-${count.index}"
 
-  image_name      = data.openstack_images_image_v2.image.name
   flavor_name     = var.control_plane.flavor
   key_pair        = openstack_compute_keypair_v2.deployer.name
   security_groups = [openstack_networking_secgroup_v2.securitygroup.name]
+
+  block_device {
+    uuid             = openstack_blockstorage_volume_v3.control_plane[count.index].id
+    source_type      = "volume"
+    destination_type = "volume"
+  }
 
   network {
     port = element(openstack_networking_port_v2.control_plane.*.id, count.index)

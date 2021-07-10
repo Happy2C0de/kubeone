@@ -1,0 +1,59 @@
+apiVersion: kubeone.io/v1beta1
+kind: KubeOneCluster
+versions:
+  kubernetes: '1.21.0'
+cloudProvider:
+  external: true
+  csiMigration: true
+  openstack: {}
+  cloudConfig: |
+    [Global]
+    region=
+    # openstack application credential create kubeone
+    application-credential-id=
+    application-credential-secret=
+    auth-url=
+    tenant-name=
+    domain-name=default
+
+    [LoadBalancer]
+    # Internal network of the LB (also possible to specify via annotations)
+    # openstack network list (network of worker nodes)
+    network-id=
+    # openstack network show public -c id -f value
+    floating-network-id=
+    # Openstack LBaaS-Service, neutron or octavia
+    use-octavia=false
+
+    # This needs further investigations under Octavia LB
+    manage-security-groups=true
+
+    [Networking]
+    public-network-name=public
+
+    [BlockStorage]
+    # Adjust to your Openstack environment!
+    # This is relevant for k8s. 
+    node-volume-attach-limit=24
+
+    [Metadata]
+    search-order=metadataService,configDrive
+
+# ======== Infos IPv6 ========
+# Note: This section is NOT needed if you would like a default Kubernetes cluster.
+# clusterNetwork:
+#   podSubnet: "10.244.0.0/16,fd01::/48"
+#   serviceSubnet: "10.96.0.0/12,fd02::/108"
+#   cni:
+#     external: {}
+# addons:
+#   # Calico with dual-stack and ip-masq-agent will be installed.
+#   enable: true
+#   path: "./ipv6/addons"
+# ---
+# Notes:
+# Certain sources say that you can use public routable IPv6 for services and pods.
+# IMPORTANT: This was not tested and might require further adjustments!
+# See: https://github.com/kubernetes/website/blob/main/content/en/docs/setup/production-environment/tools/kubeadm/dual-stack-support.md
+# podSubnet: "10.244.0.0/16,PUBLIC_POD_IPV6_SUBNET/104"
+# serviceSubnet: "10.96.0.0/12,PUBLIC_SERVICE_IPV6_SUBNET/112"

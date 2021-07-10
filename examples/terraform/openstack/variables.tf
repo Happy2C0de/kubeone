@@ -68,8 +68,10 @@ variable "subnet_dns_servers" {
 
 variable "ipv6" {
   type = object({
-    enabled    = bool
-    subnetpool = string
+    enabled         = bool
+    subnetpool      = string
+    prefix_length   = number
+    dns_nameservers = list(string)
   })
   description = "Enable IPv6 subnet."
 }
@@ -78,10 +80,12 @@ variable "ipv6" {
 ############################
 variable "control_plane" {
   type = object({
-    flavor = string
-    image  = string
-    user   = string
-    port   = number
+    flavor      = string
+    image       = string
+    user        = string
+    port        = number
+    volume_size = number
+    volume_type = string
   })
   description = "Control plane configuration."
 }
