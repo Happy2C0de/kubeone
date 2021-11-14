@@ -73,7 +73,7 @@ variable "ipv6" {
     prefix_length   = number
     dns_nameservers = list(string)
   })
-  description = "Enable IPv6 subnet."
+  description = "Enable and configure IPv6."
 }
 
 ##### CONTROL PLANE ########
@@ -129,10 +129,4 @@ variable "worker" {
     replicas = number
   })
   description = "Settings for the initial worker nodes deployed with a MachineDeployment. (0 by default)"
-  default = {
-    os       = "ubuntu"
-    image    = "Ubuntu Bionic 18.04"
-    flavor   = "m1.large"
-    replicas = 0
-  }
 }

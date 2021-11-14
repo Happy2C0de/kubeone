@@ -1,0 +1,47 @@
+apiVersion: cluster.k8s.io/v1alpha1
+kind: MachineDeployment
+metadata:
+  name: test-pool1
+  namespace: kube-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      workerset: test-pool1
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        workerset: test-pool1
+      namespace: kube-system
+    spec:
+      metadata:
+        creationTimestamp: null
+        labels:
+          workerset: test-pool1
+      providerSpec:
+        value:
+          cloudProvider: openstack
+          cloudProviderSpec:
+            flavor: n1.large
+            image: Ubuntu Bionic 18.04
+            instanceReadyCheckTimeout: 2m
+            network: test-cluster
+            nodeVolumeAttachLimit: 25
+            rootDiskSizeGB: 50
+            securityGroups:
+            - test-cluster
+            tags:
+              test-workers: pool1
+          operatingSystem: ubuntu
+          operatingSystemSpec:
+            distUpgradeOnBoot: false
+          sshPublicKeys:
+          - <SSH_KEY>
+      versions:
+        kubelet: 1.21.1

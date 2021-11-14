@@ -17,21 +17,71 @@ See the [Terraform loadbalancers in examples document][docs-tf-loadbalancer].
 | Name | Description | Type | Default | Required |
 |------|-------------|:----:|:-----:|:-----:|
 | cluster\_name | Name of the cluster | string | n/a | yes |
-| control\_plane\_flavor | OpenStack instance flavor for the control plane nodes | string | `"m1.small"` | no |
 | external\_network\_name | OpenStack external network name | string | n/a | yes |
-| image | image name to use | string | `"Ubuntu 18.04"` | no |
-| lb\_flavor | OpenStack instance flavor for the LoadBalancer node | string | `"m1.micro"` | no |
 | ssh\_agent\_socket | SSH Agent socket, default to grab from $SSH_AUTH_SOCK | string | `"env:SSH_AUTH_SOCK"` | no |
-| ssh\_port | SSH port to be used to provision instances | string | `"22"` | no |
 | ssh\_private\_key\_file | SSH private key file used to access instances | string | `""` | no |
 | ssh\_public\_key\_file | SSH public key file | string | `"~/.ssh/id_rsa.pub"` | no |
-| ssh\_username | SSH user, used only in output | string | `"root"` | no |
 | subnet\_cidr | OpenStack subnet cidr | string | `"192.168.1.0/24"` | no |
 | subnet\_dns\_servers |  | list | `<list>` | no |
-| worker\_flavor | OpenStack instance flavor for the worker nodes | string | `"m1.small"` | no |
-| worker\_os | OS to run on worker machines | string | `"ubuntu"` | no |
+| control\_plane | control\_plane configuration | object | - | yes |
+| lb | loadbalancer configuration | object | - | no |
+| bastion | bastion configuration (only if `lb.useLBaaS= true`). | object | - | true |
+| worker | worker configuration. | object | - | false |
 
-TODO: Improve Input documentation to the new format.
+---
+### Input Objects
+#### Object: control_plane
+
+| Name | Description | Type | Default | Required |
+|------|-------------|:----:|:-----:|:-----:|
+| flavor | Flavor of the cps. | string | - | yes |
+| image | Image name of the cps. | string | - | yes |
+| user | SSH user name of the cps. | string | - | yes |
+| port | SSH port of the cps. | number | - | yes |
+| volume\_size | Volume size of the root volume. | number | - | yes |
+| volume\_type | Volume type of the root volume. | string | - | yes |
+
+---
+#### Object: lb
+
+| Name | Description | Type | Default | Required |
+|------|-------------|:----:|:-----:|:-----:|
+| useLBaaS | Use LBaaS loadbalancer. | bool | - | yes |
+| flavor | Flavor of the bastion. | string | - | yes |
+| image | Image name of the bastion. | string | - | yes |
+| user | SSH user name of the bastion. | string | - | yes |
+| port | SSH port of the bastion. | number | - | yes |
+
+---
+#### Object: bastion
+
+| Name | Description | Type | Default | Required |
+|------|-------------|:----:|:-----:|:-----:|
+| flavor | Flavor of the bastion. | string | - | yes |
+| image | Image name of the bastion. | string | - | yes |
+| user | SSH user name of the bastion. | string | - | yes |
+| port | SSH port of the bastion. | number | - | yes |
+
+---
+#### Object: worker
+
+| Name | Description | Type | Default | Required |
+|------|-------------|:----:|:-----:|:-----:|
+| flavor | Flavor of the workers. | string | "m1.large" | yes |
+| image | Image name of the workers. | string | "Ubuntu Bionic 18.04" | yes |
+| os | Operating System of the workers (valid: ubuntu, centos, flatcar). | string | "ubuntu" | yes |
+| port | SSH port of the workers. | number | 0 | yes |
+
+---
+#### Object: ipv6
+
+| Name | Description | Type | Default | Required |
+|------|-------------|:----:|:-----:|:-----:|
+| enabled | Is IPv6 enabled (see not in section "IPv6 Support"). | bool | - | yes |
+| subnetpool | IPv6 subnet pool name. | string | - | yes |
+| prefix_length | Prefix length of the tenant IPv6 subnet. | number | - | yes |
+| dns_nameservers | Nameserves configured on the given IPv6 tenant network. | list(string) | - | yes |
+
 
 ## Outputs
 

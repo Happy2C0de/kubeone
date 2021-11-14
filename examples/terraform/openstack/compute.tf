@@ -81,6 +81,6 @@ resource "openstack_networking_port_v2" "control_plane" {
 
   fixed_ip {
     subnet_id  = openstack_networking_subnet_v2.subnet.id
-    ip_address = cidrhost(var.subnet_cidr, 10 + count.index )
+    ip_address = cidrhost(openstack_networking_subnet_v2.subnet.cidr, 10 + count.index )
   }
 }
